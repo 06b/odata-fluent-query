@@ -1,6 +1,5 @@
 import { QueryDescriptor, StringOptions } from '../models'
 import { createQuery } from './create-query'
-import isUUID from 'validator/lib/isUUID'
 
 export function getFuncArgs(func: Function): string[] {
   const [, , paramStr] = /(function)?(.*?)(?=[={])/.exec(func.toString()) ?? []
@@ -77,7 +76,7 @@ function filterBuilder(key: string) {
   const equalityBuilder = (t: 'eq' | 'ne') => (x: any, opt?: StringOptions) => {
     switch (typeof x) {
       case 'string':
-        if (isUUID(x) && !opt?.ignoreGuid) {
+        if (/^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$/.test(x) && !opt?.ignoreGuid) {
           return makeExp(`${key} ${t} ${x}`) // no quote around ${x}
         } else if (opt?.caseInsensitive) {
           return makeExp(`tolower(${key}) ${t} '${x.toLocaleLowerCase()}'`)
